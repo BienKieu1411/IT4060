@@ -1,3 +1,4 @@
 Hello Server
 My name is Kieu Giang Bien
+How are you
 Exit
