@@ -7,3 +7,5 @@ info_client
 info_server
 client_stream
 server_stream
+udp_client
+udp_server
