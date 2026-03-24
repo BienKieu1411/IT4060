@@ -5,3 +5,5 @@ sv_client
 sv_server
 info_client
 info_server
+client_stream
+server_stream

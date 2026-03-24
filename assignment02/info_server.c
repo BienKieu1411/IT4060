@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #define PORT 8080
-#define MAX 8192
+#define MAX 1024
 
 int main() {
     int listener = socket(AF_INET, SOCK_STREAM, 0);

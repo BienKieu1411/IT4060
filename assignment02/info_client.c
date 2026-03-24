@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 
 #define PORT 8080
-#define MAX 8192
+#define MAX 1024
 
 int main() {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
