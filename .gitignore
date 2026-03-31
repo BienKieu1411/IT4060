@@ -9,3 +9,4 @@ client_stream
 server_stream
 udp_client
 udp_server
+server
