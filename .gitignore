@@ -10,3 +10,4 @@ server_stream
 udp_client
 udp_server
 server
+udp_chat

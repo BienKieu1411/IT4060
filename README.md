@@ -8,6 +8,8 @@
 
     - assignment03: Bài tập trên lớp ngày 31/03/2026
 
+    - assignment04: Bài tập về nhà ngày 31/03/2026
+
 ## Struct
 
 ```text
