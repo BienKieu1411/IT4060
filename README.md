@@ -10,6 +10,8 @@
 
     - assignment04: Bài tập về nhà ngày 31/03/2026
 
+    - assignment05: Bài tập về nhà ngày 07/04/2026
+
 ## Struct
 
 ```text

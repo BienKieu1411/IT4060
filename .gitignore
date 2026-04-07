@@ -11,3 +11,7 @@ udp_client
 udp_server
 server
 udp_chat
+chat_server
+chat_client
+telnet_client
+telnet_server
