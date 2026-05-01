@@ -15,3 +15,7 @@ chat_server
 chat_client
 telnet_client
 telnet_server
+server_ex1
+udp_ex2
+server_ex3
+server
