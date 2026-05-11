@@ -19,3 +19,5 @@ server_ex1
 udp_ex2
 server_ex3
 server
+http_server
+time_server
