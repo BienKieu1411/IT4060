@@ -21,3 +21,7 @@ server_ex3
 server
 http_server
 time_server
+pair_chat_server
+pair_chat_client
+file_client
+file_server
