@@ -27,3 +27,4 @@ file_client
 file_server
 calculator_http_server
 file_http_server
+ftp_client
