@@ -25,6 +25,8 @@
     - assignment11: Bài tập về nhà ngày 26/05/2026
 
     - assignment12: Bài tập về nhà ngày 09/06/2026
+
+    - assignment13: Bài tập trên lớp ngày 16/06/2026
 ## Struct
 
 ```text

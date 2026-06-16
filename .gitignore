@@ -28,3 +28,4 @@ file_server
 calculator_http_server
 file_http_server
 ftp_client
+node_modules/

@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IT4060 Chat Client</title>
+  <style>
+    :root {
+      --bg1: #0f172a;
+      --bg2: #1e293b;
+      --card: rgba(255, 255, 255, 0.92);
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary2: #1d4ed8;
+      --danger: #dc2626;
+      --line: #e2e8f0;
+      --ok: #16a34a;
+      --warn: #f59e0b;
+      --bubble: #f1f5f9;
+      --mine: #dbeafe;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      height: 100%;
+      overflow: auto;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: auto;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.38), transparent 28rem),
+        radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.22), transparent 24rem),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    .app {
+      width: min(1180px, 100%);
+      height: min(760px, calc(100vh - 56px));
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      border-radius: 28px;
+      overflow: hidden;
+      background: var(--card);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(18px);
+    }
+
+    .sidebar {
+      padding: 24px;
+      background: rgba(248, 250, 252, 0.82);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      box-shadow: 0 12px 26px rgba(37, 99, 235, 0.35);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+
+    input, select, button {
+      font: inherit;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 13px;
+      outline: none;
+      background: white;
+      color: var(--text);
+      transition: 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.22);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 0.58fr;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      color: white;
+      background: var(--primary);
+      font-weight: 800;
+      transition: 0.2s;
+      box-shadow: 0 12px 28px rgba(37, 99, 235, 0.22);
+    }
+
+    .btn:hover {
+      background: var(--primary2);
+      transform: translateY(-1px);
+    }
+
+    .btn.secondary {
+      background: #334155;
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      background: var(--danger);
+      box-shadow: none;
+    }
+
+    .status {
+      margin-top: auto;
+      padding: 13px;
+      border-radius: 16px;
+      background: white;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .status strong {
+      color: var(--text);
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .topbar {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .room-title {
+      font-weight: 900;
+      font-size: 17px;
+    }
+
+    .pill {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid var(--line);
+    }
+
+    .pill.online {
+      color: #166534;
+      background: #dcfce7;
+      border-color: #bbf7d0;
+    }
+
+    .messages {
+      flex: 1;
+      min-height: 0;
+      padding: 22px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
+      background:
+        linear-gradient(rgba(255,255,255,0.72), rgba(255,255,255,0.72)),
+        url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23cbd5e1' fill-opacity='0.25'%3E%3Ccircle cx='4' cy='4' r='1'/%3E%3Ccircle cx='24' cy='24' r='1'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .messages::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .messages::-webkit-scrollbar-track {
+      background: rgba(226, 232, 240, 0.65);
+      border-radius: 999px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.65);
+      border-radius: 999px;
+    }
+
+    .messages::-webkit-scrollbar-thumb:hover {
+      background: rgba(71, 85, 105, 0.85);
+    }
+
+    .msg {
+      display: flex;
+      margin: 10px 0;
+      animation: pop 0.14s ease-out;
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .bubble {
+      max-width: 78%;
+      border-radius: 18px;
+      padding: 11px 13px;
+      background: var(--bubble);
+      border: 1px solid #e2e8f0;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .msg.mine {
+      justify-content: flex-end;
+    }
+
+    .msg.mine .bubble {
+      background: var(--mine);
+      border-color: #bfdbfe;
+    }
+
+    .msg.system .bubble {
+      background: #fff7ed;
+      border-color: #fed7aa;
+      color: #9a3412;
+      max-width: 92%;
+      font-size: 13px;
+    }
+
+    .name {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 900;
+      margin-bottom: 3px;
+    }
+
+    .composer {
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      background: white;
+      display: grid;
+      grid-template-columns: 150px 150px 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .target-wrap {
+      display: block;
+    }
+
+    .target-wrap.hidden {
+      display: none;
+    }
+
+    .send {
+      min-width: 94px;
+    }
+
+    .quick {
+      padding: 0 16px 16px;
+      background: white;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .quick button {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #334155;
+      border-radius: 999px;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .quick button:hover {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    @media (max-width: 860px) {
+      body {
+        padding: 0;
+      }
+
+      .app {
+        height: 100vh;
+        min-height: 0;
+        border-radius: 0;
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .composer {
+        grid-template-columns: 1fr;
+      }
+
+      .target-wrap.hidden {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">C</div>
+        <div>
+          <h1>IT4060 Chat</h1>
+          <p class="subtitle">HTML Client cho TCP Chat Server</p>
+        </div>
+      </div>
+
+      <div>
+        <label for="host">Server IP</label>
+        <input id="host" value="127.0.0.1" />
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="port">Port</label>
+          <input id="port" value="9000" />
+        </div>
+        <div>
+          <label for="nick">Nickname</label>
+          <input id="nick" value="user1" />
+        </div>
+      </div>
+
+      <button class="btn" id="connectBtn">Connect / JOIN</button>
+      <button class="btn danger" id="disconnectBtn">QUIT</button>
+
+      <div class="status" id="statusBox">
+        <strong>Trạng thái:</strong><br />
+        Chưa kết nối.
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="room-title">Chat Room</div>
+          <div class="subtitle">Protocol: JOIN, MSG, PMSG, OP, KICK, TOPIC, QUIT</div>
+        </div>
+        <div class="pill" id="onlinePill">OFFLINE</div>
+      </header>
+
+      <section class="messages" id="messages"></section>
+
+      <div class="quick">
+        <button data-mode="room">Room message</button>
+        <button data-mode="private">Private message</button>
+        <button data-mode="topic">Set topic</button>
+        <button data-mode="op">Transfer OP</button>
+        <button data-mode="kick">Kick user</button>
+      </div>
+
+      <footer class="composer">
+        <select id="mode">
+          <option value="room">MSG</option>
+          <option value="private">PMSG</option>
+          <option value="topic">TOPIC</option>
+          <option value="op">OP</option>
+          <option value="kick">KICK</option>
+          <option value="raw">RAW</option>
+        </select>
+
+        <div class="target-wrap hidden" id="targetWrap">
+          <input id="target" placeholder="target nick" />
+        </div>
+
+        <input id="message" placeholder="Nhập tin nhắn..." />
+
+        <button class="btn send" id="sendBtn">Send</button>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    let ws = null;
+    let connected = false;
+    let myNick = "";
+
+    const $ = (id) => document.getElementById(id);
+    const messages = $("messages");
+
+    function setStatus(text, online = false) {
+      $("statusBox").innerHTML = `<strong>Trạng thái:</strong><br>${escapeHtml(text)}`;
+      $("onlinePill").textContent = online ? "ONLINE" : "OFFLINE";
+      $("onlinePill").classList.toggle("online", online);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    function addMessage(kind, title, text) {
+      const item = document.createElement("div");
+      item.className = `msg ${kind || ""}`;
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+
+      if (title) {
+        const name = document.createElement("span");
+        name.className = "name";
+        name.textContent = title;
+        bubble.appendChild(name);
+      }
+
+      const body = document.createElement("span");
+      body.textContent = text;
+      bubble.appendChild(body);
+
+      item.appendChild(bubble);
+      messages.appendChild(item);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function parseServerLine(line) {
+      const clean = line.replace(/\r?\n$/, "");
+
+      if (clean === "100 OK") {
+        addMessage("system", "SERVER", "100 OK");
+        return;
+      }
+
+      if (clean.startsWith("MSG ")) {
+        const rest = clean.slice(4);
+        const sp = rest.indexOf(" ");
+        if (sp >= 0) {
+          const nick = rest.slice(0, sp);
+          const msg = rest.slice(sp + 1);
+          addMessage(nick === myNick ? "mine" : "", `MSG ${nick}`, msg);
+          return;
+        }
+      }
+
+      if (clean.startsWith("PMSG ")) {
+        const rest = clean.slice(5);
+        const sp = rest.indexOf(" ");
+        if (sp >= 0) {
+          const nick = rest.slice(0, sp);
+          const msg = rest.slice(sp + 1);
+          addMessage("", `PRIVATE from ${nick}`, msg);
+          return;
+        }
+      }
+
+      if (clean.startsWith("JOIN ")) {
+        addMessage("system", "JOIN", `${clean.slice(5)} joined the room`);
+        return;
+      }
+
+      if (clean.startsWith("QUIT ")) {
+        addMessage("system", "QUIT", `${clean.slice(5)} left the room`);
+        return;
+      }
+
+      if (clean.startsWith("OP ")) {
+        addMessage("system", "OP", `${clean.slice(3)} is now operator`);
+        return;
+      }
+
+      if (clean.startsWith("TOPIC ")) {
+        addMessage("system", "TOPIC", clean.slice(6));
+        return;
+      }
+
+      if (clean.startsWith("KICK ")) {
+        addMessage("system", "KICK", clean.slice(5));
+        return;
+      }
+
+      if (clean.startsWith("200 ")) {
+        addMessage("system", "ERROR", "Nickname đã được sử dụng");
+        return;
+      }
+
+      if (clean.startsWith("201 ")) {
+        addMessage("system", "ERROR", "Nickname không hợp lệ");
+        return;
+      }
+
+      if (clean.startsWith("202 ")) {
+        addMessage("system", "ERROR", "Không tìm thấy nickname");
+        return;
+      }
+
+      if (clean.startsWith("203 ")) {
+        addMessage("system", "ERROR", "Bạn không có quyền thực hiện lệnh này");
+        return;
+      }
+
+      addMessage("system", "SERVER", clean);
+    }
+
+    function ensureWebSocket() {
+      if (ws && ws.readyState === WebSocket.OPEN) return true;
+
+      ws = new WebSocket(`ws://${location.host}`);
+
+      ws.onopen = () => {
+        const host = $("host").value.trim();
+        const port = $("port").value.trim();
+        myNick = $("nick").value.trim();
+
+        ws.send(JSON.stringify({
+          type: "connect",
+          host,
+          port,
+          nick: myNick
+        }));
+      };
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+
+        if (msg.type === "status") {
+          connected = msg.message.startsWith("Connected");
+          setStatus(msg.message, connected);
+          addMessage("system", "STATUS", msg.message);
+          return;
+        }
+
+        if (msg.type === "error") {
+          setStatus(msg.message, false);
+          addMessage("system", "ERROR", msg.message);
+          return;
+        }
+
+        if (msg.type === "server") {
+          parseServerLine(msg.line);
+        }
+      };
+
+      ws.onclose = () => {
+        connected = false;
+        setStatus("WebSocket closed", false);
+      };
+
+      ws.onerror = () => {
+        connected = false;
+        setStatus("WebSocket error", false);
+      };
+
+      return true;
+    }
+
+    function sendProtocolLine(line) {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        addMessage("system", "ERROR", "Chưa kết nối WebSocket");
+        return;
+      }
+
+      ws.send(JSON.stringify({
+        type: "send",
+        line
+      }));
+    }
+
+    function buildCommand() {
+      const mode = $("mode").value;
+      const target = $("target").value.trim();
+      const text = $("message").value.trim();
+
+      if (mode === "room") {
+        if (!text) return "";
+        return `MSG ${text}`;
+      }
+
+      if (mode === "private") {
+        if (!target || !text) return "";
+        return `PMSG ${target} ${text}`;
+      }
+
+      if (mode === "topic") {
+        if (!text) return "";
+        return `TOPIC ${text}`;
+      }
+
+      if (mode === "op") {
+        if (!target) return "";
+        return `OP ${target}`;
+      }
+
+      if (mode === "kick") {
+        if (!target) return "";
+        return `KICK ${target}`;
+      }
+
+      if (mode === "raw") {
+        return text;
+      }
+
+      return "";
+    }
+
+    function updateModeUI() {
+      const mode = $("mode").value;
+      const needTarget = mode === "private" || mode === "op" || mode === "kick";
+      $("targetWrap").classList.toggle("hidden", !needTarget);
+
+      if (mode === "op") $("message").placeholder = "Không cần nhập nội dung, chỉ nhập target nick";
+      else if (mode === "kick") $("message").placeholder = "Không cần nhập nội dung, chỉ nhập target nick";
+      else if (mode === "topic") $("message").placeholder = "Nhập topic mới...";
+      else if (mode === "raw") $("message").placeholder = "Nhập lệnh raw, ví dụ: MSG hello";
+      else $("message").placeholder = "Nhập tin nhắn...";
+    }
+
+    $("connectBtn").addEventListener("click", () => {
+      messages.innerHTML = "";
+      ensureWebSocket();
+    });
+
+    $("disconnectBtn").addEventListener("click", () => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "send", line: "QUIT" }));
+      }
+    });
+
+    $("sendBtn").addEventListener("click", () => {
+      const line = buildCommand();
+      if (!line) {
+        addMessage("system", "ERROR", "Thiếu nội dung hoặc target nickname");
+        return;
+      }
+
+      sendProtocolLine(line);
+
+      const mode = $("mode").value;
+      if (mode === "room") addMessage("mine", `MSG ${myNick}`, $("message").value.trim());
+      if (mode === "private") addMessage("mine", `PRIVATE to ${$("target").value.trim()}`, $("message").value.trim());
+      if (mode === "raw") addMessage("mine", "RAW", line);
+
+      $("message").value = "";
+      $("message").focus();
+    });
+
+    $("message").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") $("sendBtn").click();
+    });
+
+    $("mode").addEventListener("change", updateModeUI);
+
+    document.querySelectorAll(".quick button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        $("mode").value = btn.dataset.mode;
+        updateModeUI();
+        $("message").focus();
+      });
+    });
+
+    updateModeUI();
+    setStatus("Chưa kết nối.", false);
+  </script>
+</body>
+</html>
